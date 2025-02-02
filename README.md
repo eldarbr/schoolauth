@@ -1,2 +1,2 @@
-# go-21authorizations
-Creads to token automated auth flow
+# schoolauth
+Creds to token automated auth flow
