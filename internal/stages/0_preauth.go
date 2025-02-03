@@ -27,6 +27,10 @@ type PreauthResult struct {
 const (
 	defaultPreauthRedirect = "https://edu.21-school.ru/"
 	preauthURL             = "https://auth.sberclass.ru/auth/realms/EduPowerKeycloak/protocol/openid-connect/auth"
+
+	tabIDtag       = "tab_id"
+	sessionCodeTag = "execution"
+	executionTag   = "session_code"
 )
 
 var (
@@ -109,12 +113,6 @@ func doPreauthRequest(ctx context.Context, nonce, state string) (*http.Response,
 }
 
 func parsePreauthBody(placeholder *PreauthResult, body io.Reader) error {
-	const (
-		tabIDtag       = "tab_id"
-		sessionCodeTag = "execution"
-		executionTag   = "session_code"
-	)
-
 	reader := bufio.NewReader(body)
 	match := [][]byte(nil)
 
