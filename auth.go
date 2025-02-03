@@ -14,10 +14,20 @@ func Auth(ctx context.Context, username, password string) (token.Token, error) {
 		return token.Token{}, fmt.Errorf("preauth: %w", err)
 	}
 
-	err = stages.Authenticate(ctx, preauthRes, username, password)
+	authenticateRes, err := stages.Authenticate(ctx, preauthRes, username, password)
 	if err != nil {
 		return token.Token{}, fmt.Errorf("authenticate: %w", err)
 	}
 
-	return token.Token{}, nil
+	requiredActionRes, err := stages.RequiredAction(ctx, authenticateRes)
+	if err != nil {
+		return token.Token{}, fmt.Errorf("requiredAction: %w", err)
+	}
+
+	tokenRes, err := stages.Token(ctx, requiredActionRes)
+	if err != nil {
+		return token.Token{}, fmt.Errorf("token: %w", err)
+	}
+
+	return tokenRes, nil
 }

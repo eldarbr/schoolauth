@@ -9,6 +9,14 @@ import (
 	"strings"
 )
 
+type AuthenticateResult struct {
+	authSessionID string
+	kcRestart     string
+	nonce         string
+	tabID         string
+	execution     string
+}
+
 const (
 	authenticateURL = "https://auth.sberclass.ru/auth/realms/EduPowerKeycloak/login-actions/authenticate"
 )
@@ -18,10 +26,10 @@ var (
 	ErrCredentials   = errors.New("user credentials were wrong")
 )
 
-func Authenticate(ctx context.Context, preauth PreauthResult, login, password string) error {
+func Authenticate(ctx context.Context, preauth PreauthResult, login, password string) (AuthenticateResult, error) {
 	gotTheRedirect := false
 	client := http.Client{
-		CheckRedirect: createCheckRedirect(&gotTheRedirect),
+		CheckRedirect: createCheckRedirectAuthenticate(&gotTheRedirect),
 	}
 
 	data := url.Values{}
@@ -32,7 +40,7 @@ func Authenticate(ctx context.Context, preauth PreauthResult, login, password st
 		strings.NewReader(data.Encode()),
 	)
 	if err != nil {
-		return fmt.Errorf("new request: %w", err)
+		return AuthenticateResult{}, fmt.Errorf("new request: %w", err)
 	}
 
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -52,19 +60,25 @@ func Authenticate(ctx context.Context, preauth PreauthResult, login, password st
 
 	resp, err := client.Do(request)
 	if err != nil {
-		return fmt.Errorf("do request: %w", err)
+		return AuthenticateResult{}, fmt.Errorf("do request: %w", err)
 	}
 
 	defer resp.Body.Close()
 
 	if !gotTheRedirect { // no redirect = wrong creds
-		return ErrCredentials
+		return AuthenticateResult{}, ErrCredentials
 	}
 
-	return nil
+	return AuthenticateResult{
+		authSessionID: preauth.authSessionID,
+		kcRestart:     preauth.kcRestart,
+		nonce:         preauth.nonce,
+		tabID:         preauth.tabID,
+		execution:     preauth.execution,
+	}, nil
 }
 
-func createCheckRedirect(gotTheRedirect *bool) func(req *http.Request, via []*http.Request) error {
+func createCheckRedirectAuthenticate(gotTheRedirect *bool) func(req *http.Request, via []*http.Request) error {
 	return func(req *http.Request, _ []*http.Request) error {
 		if req.URL.Path == "/auth/realms/EduPowerKeycloak/login-actions/required-action" {
 			*gotTheRedirect = true

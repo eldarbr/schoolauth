@@ -29,8 +29,8 @@ const (
 	preauthURL             = "https://auth.sberclass.ru/auth/realms/EduPowerKeycloak/protocol/openid-connect/auth"
 
 	tabIDtag       = "tab_id"
-	sessionCodeTag = "execution"
-	executionTag   = "session_code"
+	sessionCodeTag = "session_code"
+	executionTag   = "execution"
 )
 
 var (

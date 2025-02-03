@@ -15,6 +15,10 @@ type Token struct {
 	expires   int64
 }
 
+func NewToken(tok string, exp int64) Token {
+	return Token{authToken: tok, expires: exp}
+}
+
 func (t Token) GetAuthToken() (string, error) {
 	if t.authToken == "" {
 		return "", ErrNoToken
