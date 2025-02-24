@@ -11,22 +11,22 @@ var (
 )
 
 type Token struct {
-	authToken string
-	expires   int64
+	AuthToken string
+	Expires   int64
 }
 
 func NewToken(tok string, exp int64) Token {
-	return Token{authToken: tok, expires: exp}
+	return Token{AuthToken: tok, Expires: exp}
 }
 
 func (t Token) GetAuthToken() (string, error) {
-	if t.authToken == "" {
+	if t.AuthToken == "" {
 		return "", ErrNoToken
 	}
 
-	if time.Now().Unix() >= t.expires {
+	if time.Now().Unix() >= t.Expires {
 		return "", ErrTokenExpired
 	}
 
-	return t.authToken, nil
+	return t.AuthToken, nil
 }
