@@ -18,7 +18,7 @@ type tokenResponseModel struct {
 }
 
 const (
-	tokenURL = "https://auth.sberclass.ru/auth/realms/EduPowerKeycloak/protocol/openid-connect/token"
+	tokenURL = "https://auth.sberclass.ru/auth/realms/EduPowerKeycloak/protocol/openid-connect/token" //nolint:gosec // n.
 )
 
 func Token(ctx context.Context, requiredAction RequiredActionResult) (token.Token, error) {

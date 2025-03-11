@@ -22,15 +22,14 @@ type ManagedToken struct {
 	username string
 	password string
 	savePath string
+	loaded   *token.Token
 }
 
 const (
 	tmpfileName = "21auth.bin"
 )
 
-var (
-	ErrShortCiphertext = errors.New("ciphertext too short")
-)
+var ErrShortCiphertext = errors.New("ciphertext too short")
 
 func NewManagedToken(username, password string, savePath *string) *ManagedToken {
 	var path string
@@ -45,13 +44,14 @@ func NewManagedToken(username, password string, savePath *string) *ManagedToken 
 		username: username,
 		password: password,
 		savePath: path,
+		loaded:   nil,
 	}
 }
 
 func (tok *ManagedToken) Invalidate() error {
 	_, err := os.Stat(tok.savePath)
 	if err != nil {
-		return nil // file does not exist
+		return nil //nolint:nilerr // file does not exist.
 	}
 
 	err = os.Remove(tok.savePath)
@@ -63,7 +63,17 @@ func (tok *ManagedToken) Invalidate() error {
 }
 
 func (tok *ManagedToken) Get(ctx context.Context) (string, error) {
-	var token string
+	var (
+		token string
+		err   error
+	)
+
+	if tok.loaded != nil {
+		token, err = tok.loaded.GetAuthToken()
+		if err == nil {
+			return token, nil
+		}
+	}
 
 	fileContent, err := ReadFromFile(tok.savePath)
 	if err == nil {
@@ -96,6 +106,8 @@ func (tok *ManagedToken) tryDecrypt(encrypted []byte) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("get decrypted token: %w", err)
 	}
+
+	tok.loaded = &token
 
 	return authToken, nil
 }
@@ -132,10 +144,12 @@ func (tok *ManagedToken) saveNewToken(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("save to file: %w", err)
 	}
 
+	tok.loaded = &token
+
 	return authToken, nil
 }
 
-// DeriveKey generates a 32-byte AES key from a password using PBKDF2
+// DeriveKey generates a 32-byte AES key from a password using PBKDF2.
 func DeriveKey(password string, salt []byte) []byte {
 	return pbkdf2.Key([]byte(password), salt, 4096, 32, sha256.New)
 }
@@ -165,7 +179,7 @@ func DeserializeStruct(data []byte) (token.Token, error) {
 	return result, nil
 }
 
-// Encrypt encrypts binary data using AES-GCM with a password
+// Encrypt encrypts binary data using AES-GCM with a password.
 func Encrypt(data []byte, password string) ([]byte, error) {
 	salt := make([]byte, 16)
 	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
@@ -199,7 +213,7 @@ func Encrypt(data []byte, password string) ([]byte, error) {
 	return result.Bytes(), nil
 }
 
-// Decrypt decrypts binary data using AES-GCM with a password
+// Decrypt decrypts binary data using AES-GCM with a password.
 func Decrypt(encryptedData []byte, password string) ([]byte, error) {
 	if len(encryptedData) < 16+12 {
 		return nil, ErrShortCiphertext
@@ -229,12 +243,12 @@ func Decrypt(encryptedData []byte, password string) ([]byte, error) {
 	return plaintext, nil
 }
 
-// SaveToFile writes encrypted data to a file
+// SaveToFile writes encrypted data to a file.
 func SaveToFile(filename string, data []byte) error {
 	return os.WriteFile(filename, data, 0644)
 }
 
-// ReadFromFile reads encrypted data from a file
+// ReadFromFile reads encrypted data from a file.
 func ReadFromFile(filename string) ([]byte, error) {
 	return os.ReadFile(filename)
 }
