@@ -12,7 +12,7 @@ type RequiredActionResult struct {
 }
 
 const (
-	requiredActionURL = "https://auth.sberclass.ru/auth/realms/EduPowerKeycloak/login-actions/required-action"
+	requiredActionURL = "https://auth.21-school.ru/auth/realms/EduPowerKeycloak/login-actions/required-action"
 )
 
 func RequiredAction(ctx context.Context, authenticate AuthenticateResult) (RequiredActionResult, error) {

@@ -18,7 +18,7 @@ type tokenResponseModel struct {
 }
 
 const (
-	tokenURL = "https://auth.sberclass.ru/auth/realms/EduPowerKeycloak/protocol/openid-connect/token" //nolint:gosec // n.
+	tokenURL = "https://auth.21-school.ru/auth/realms/EduPowerKeycloak/protocol/openid-connect/token" //nolint:gosec // n.
 )
 
 func Token(ctx context.Context, requiredAction RequiredActionResult) (token.Token, error) {
@@ -26,7 +26,7 @@ func Token(ctx context.Context, requiredAction RequiredActionResult) (token.Toke
 	reqBody.Set("code", requiredAction.code)
 	reqBody.Set("grant_type", "authorization_code")
 	reqBody.Set("client_id", "school21")
-	reqBody.Set("redirect_uri", "https://edu.21-school.ru/")
+	reqBody.Set("redirect_uri", "https://platform.21-school.ru/")
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(reqBody.Encode()))
 	if err != nil {

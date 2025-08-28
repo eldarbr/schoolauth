@@ -25,8 +25,8 @@ type PreauthResult struct {
 }
 
 const (
-	defaultPreauthRedirect = "https://edu.21-school.ru/"
-	preauthURL             = "https://auth.sberclass.ru/auth/realms/EduPowerKeycloak/protocol/openid-connect/auth"
+	defaultPreauthRedirect = "https://platform.21-school.ru/"
+	preauthURL             = "https://auth.21-school.ru/auth/realms/EduPowerKeycloak/protocol/openid-connect/auth"
 
 	tabIDtag       = "tab_id"
 	sessionCodeTag = "session_code"

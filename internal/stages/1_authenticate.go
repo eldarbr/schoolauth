@@ -18,7 +18,7 @@ type AuthenticateResult struct {
 }
 
 const (
-	authenticateURL = "https://auth.sberclass.ru/auth/realms/EduPowerKeycloak/login-actions/authenticate"
+	authenticateURL = "https://auth.21-school.ru/auth/realms/EduPowerKeycloak/login-actions/authenticate"
 )
 
 var (
